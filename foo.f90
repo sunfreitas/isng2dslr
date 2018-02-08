@@ -22,8 +22,9 @@ REAL, DIMENSION(5, 5) :: placas
 INTEGER i, j, N, N_passos, w
 REAL iplaca_aleatoria, lplaca_aleatoria  
 INTEGER ip_a, lp_a, placa_direita, placa_esquerda, placa_acima, palca_abaixo
+
 ! Inicializando N e N_passos
-N = 10
+N = 5 !limite das fronteiras da matriz. 
 N_passos = 300
 
 ! Inicializa todas as placas com o valor inicial 90.0º
@@ -36,7 +37,7 @@ placas = 90.0
 ! gerador de números aleatórios.
 CALL random_seed
 DO i = 1, 2
-	DO j = 1, 10
+	DO j = 1, 5
 		call random_number(iplaca_aleatoria)
 		
 		! transforma o numero extemamente pequeno em algo maior
@@ -54,11 +55,11 @@ DO i = 1, 2
 		! remove as casas decimais 
 		lp_a = floor( lplaca_aleatoria ) + 1
 		
+		print *, ip_a, ", ", lp_a
+		
 		IF(ip_a+1 .GT. N ) THEN
-			PRINT *, "Tentando alterar o endereco: 1, " , lp_a
 			placa_direita = placas(1,lp_a)
 		ELSE
-			PRINT *, "Tentando alterar o endereco: ", ip_a+1,",", lp_a
 			placa_direita = placas(ip_a+1,lp_a)
 		END IF
 		
@@ -69,10 +70,8 @@ DO i = 1, 2
 		END IF
 		
 		IF(lp_a+1 .GT. N ) THEN
-			PRINT *, "Tentando alterar o endereco: " , lp_a , ", 1"
 			placa_acima = placas(ip_a,1)
 		ELSE
-			PRINT *, "Tentando alterar o endereco: " , lp_a , ", ",lp_a+1
 			placa_acima = placas(ip_a,lp_a+1)
 		END IF
 		
