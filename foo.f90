@@ -33,65 +33,60 @@ N_passos = 300
 ! para permitir uma rotação para ambos os lados. 
 placas = 90.0
 
-! Não sei exatamente o por que deste DO aqui
-!do w = 1, 2
-	! gerador de números aleatórios.
-	CALL random_seed
-	DO i = 1, 2
-		DO j = 1, 10
-			call random_number(iplaca_aleatoria)
-			
-			! transforma o numero extemamente pequeno em algo maior
-			iplaca_aleatoria = iplaca_aleatoria*REAL(N)
-			
-			! remove as casas decimais
-			ip_a = floor( iplaca_aleatoria ) + 1
-			
-			! 
-			call random_number(lplaca_aleatoria)
-			
-			! transforma o numero extemamente pequeno em algo maior
-			lplaca_aleatoria = lplaca_aleatoria*REAL(N)
-			
-			! remove as casas decimais 
-			lp_a = floor( lplaca_aleatoria ) + 1
-			
-			IF(ip_a+1 .GT. N ) THEN
-				PRINT *, "Tentando alterar o endereco: 1, " , lp_a
-				placa_direita = placas(1,lp_a)
-			ELSE
-				PRINT *, "Tentando alterar o endereco: ", ip_a+1,",", lp_a
-				placa_direita = placas(ip_a+1,lp_a)
-			END IF
-			
-			IF(ip_a-1 .LT. 1 ) THEN
-				placa_esquerda = placas(N,lp_a)
-			ELSE
-				placa_esquerda = placas(ip_a-1,lp_a)
-			END IF
-			
-			IF(lp_a+1 .GT. N ) THEN
-				PRINT *, "Tentando alterar o endereco: " , lp_a , ", 1"
-				placa_acima = placas(ip_a,1)
-			ELSE
-				PRINT *, "Tentando alterar o endereco: " , lp_a , ", ",lp_a+1
-				placa_acima = placas(ip_a,lp_a+1)
-			END IF
-			
-			IF(lp_a-1 .LT. 1 ) THEN
-				palca_abaixo = placas(ip_a,N)
-			ELSE
-				palca_abaixo = placas(ip_a,lp_a-1)
-			END IF
-			
-			!print *, placas(i, j)
-		END DO
-		!Fim DO j = 1, N_passos
+! gerador de números aleatórios.
+CALL random_seed
+DO i = 1, 2
+	DO j = 1, 10
+		call random_number(iplaca_aleatoria)
+		
+		! transforma o numero extemamente pequeno em algo maior
+		iplaca_aleatoria = iplaca_aleatoria*REAL(N)
+		
+		! remove as casas decimais
+		ip_a = floor( iplaca_aleatoria ) + 1
+		
+		! 
+		call random_number(lplaca_aleatoria)
+		
+		! transforma o numero extemamente pequeno em algo maior
+		lplaca_aleatoria = lplaca_aleatoria*REAL(N)
+		
+		! remove as casas decimais 
+		lp_a = floor( lplaca_aleatoria ) + 1
+		
+		IF(ip_a+1 .GT. N ) THEN
+			PRINT *, "Tentando alterar o endereco: 1, " , lp_a
+			placa_direita = placas(1,lp_a)
+		ELSE
+			PRINT *, "Tentando alterar o endereco: ", ip_a+1,",", lp_a
+			placa_direita = placas(ip_a+1,lp_a)
+		END IF
+		
+		IF(ip_a-1 .LT. 1 ) THEN
+			placa_esquerda = placas(N,lp_a)
+		ELSE
+			placa_esquerda = placas(ip_a-1,lp_a)
+		END IF
+		
+		IF(lp_a+1 .GT. N ) THEN
+			PRINT *, "Tentando alterar o endereco: " , lp_a , ", 1"
+			placa_acima = placas(ip_a,1)
+		ELSE
+			PRINT *, "Tentando alterar o endereco: " , lp_a , ", ",lp_a+1
+			placa_acima = placas(ip_a,lp_a+1)
+		END IF
+		
+		IF(lp_a-1 .LT. 1 ) THEN
+			palca_abaixo = placas(ip_a,N)
+		ELSE
+			palca_abaixo = placas(ip_a,lp_a-1)
+		END IF
+		
+		!print *, placas(i, j)
 	END DO
-	!Fim DO i = 1, N
-	
-!end do
-!Fim DO w = 1, 50
+	!Fim DO j = 1, N_passos
+END DO
+!Fim DO i = 1, N
 
 !Imprime a nova matriz
 call write_matrix(placas)
