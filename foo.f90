@@ -1,4 +1,4 @@
-PROGRAM foo
+PROGRAM Ising2dPlacaSolar
 IMPLICIT none
 ! =============================================================================!
 ! 									INTERFACES
@@ -111,7 +111,7 @@ END DO
 !Imprime a nova matriz
 call write_matrix(placas)
 
-END PROGRAM foo
+END PROGRAM Ising2dPlacaSolar
 
 ! =============================================================================!
 ! 								SUBROTINAS
