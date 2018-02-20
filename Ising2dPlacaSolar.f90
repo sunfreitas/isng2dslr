@@ -30,17 +30,19 @@ end interface
 ! certo momento.
 REAL, DIMENSION(5, 5) :: placas
 INTEGER k, l, N, N_passos, w
-REAL iplaca_aleatoria, lplaca_aleatoria  
+REAL iplaca_aleatoria, lplaca_aleatoria, p_aleatorio
 INTEGER ip_a, lp_a
 REAL placa_direita, placa_esquerda, placa_acima, placa_abaixo
-REAL H, J, dE, p_angulo, p_potencia, potencia_total
+REAL H, J, dE,T, To, k_Boltz, p, p_angulo, p_potencia, potencia_total
 
 ! Inicializando N e N_passos
 N = 5 !limite das fronteiras da matriz. 
 N_passos = 300
 J = 1.0 ! J é a intensidade da interação de troca entre sítios vizinhos
 H = 0.0 ! H é inicializado com zero
-
+To = 0.1
+T = To
+k_Boltz = 1.0
 ! Inicializa todas as placas com o valor inicial 90.0º
 ! 
 ! Todas as placas iniciam paralelas ao solo.
@@ -106,20 +108,21 @@ DO k = 1, 2
 		
 		! A transição é a mudança de ângulo na placa solar.
 		IF(dE .lt. 0) THEN
-			!S(s_i,s_l) = -1*S(s_i,s_l)
-			!M = M + 2*S(s_i,s_l)
+			placas(ip_a,lp_a) = placas(ip_a,lp_a) + 5.0 !Gira a placa N graus -1*S(s_i,s_l)
+			!M = M + 2*S(s_i,s_l) !Não temos uma magnetização aqui...
 		ELSE
-			!call random_number(p_aleatorio)
-			!p = exp(-dE/(T*k_B))
+			call random_number(p_aleatorio)
+			p = exp(-dE/(T*k_Boltz))
 			
-			!IF(p_aleatorio .lt. p) THEN
-			!	S(s_i,s_l) = -1*S(s_i,s_l)
-			!	M = M + 2*S(s_i,s_l)
-			!ELSE
-			!	S(s_i,s_l) = S(s_i,s_l)
-			!	E = E
-			!	M = M
-			!END IF
+			IF(p_aleatorio .lt. p) THEN
+				placas(ip_a,lp_a) = placas(ip_a,lp_a) - 5.0 !Desvira a placa N graus -1*S(s_i,s_l)
+			!	M = M + 2*S(s_i,s_l) !não influencia no algoritimo
+			ELSE
+				placas(ip_a,lp_a) = placas(ip_a,lp_a)
+				!@todo Utilizar potência no lugar de Energia
+			!	E = E !não influenciar no algoritimo
+			!	M = M !não influenciar no algoritimo
+			END IF
 		END IF
 	END DO
 	!Fim DO j = 1, N_passos
