@@ -31,8 +31,9 @@ end interface
 REAL, DIMENSION(5, 5) :: placas
 INTEGER k, l, N, N_passos, w
 REAL iplaca_aleatoria, lplaca_aleatoria  
-INTEGER ip_a, lp_a, placa_direita, placa_esquerda, placa_acima, palca_abaixo
-REAL H, J, dE, p_angulo, p_potencia
+INTEGER ip_a, lp_a
+REAL placa_direita, placa_esquerda, placa_acima, placa_abaixo
+REAL H, J, dE, p_angulo, p_potencia, potencia_total
 
 ! Inicializando N e N_passos
 N = 5 !limite das fronteiras da matriz. 
@@ -88,21 +89,38 @@ DO k = 1, 2
 		END IF
 		
 		IF(lp_a-1 .LT. 1 ) THEN
-			palca_abaixo = placas(ip_a,N)
+			placa_abaixo = placas(ip_a,N)
 		ELSE
-			palca_abaixo = placas(ip_a,lp_a-1)
+			placa_abaixo = placas(ip_a,lp_a-1)
 		END IF
 		
 		! Testante a func get_potencia
 		call get_potencia( placas(ip_a,lp_a), p_potencia )
 		print *, p_potencia
+		call sum_potencias(placa_direita, placa_esquerda, placa_acima, placa_abaixo, potencia_total)
+		print *, potencia_total
 		! Fim do teste get_potencia
 		
 		! Cálculo da variação infinitesimal da energia interna do sistema.
-  dE=-2.0*(-J*REAL(placas(ip_a,lp_a))*REAL((placa_direita + placa_esquerda + placa_acima + palca_abaixo))-H*REAL(placas(ip_a,lp_a)))
+		dE=-2.0*(-J*REAL(p_potencia)*REAL(potencia_total)-H*REAL(p_potencia))
 		
 		! A transição é a mudança de ângulo na placa solar.
-		
+		IF(dE .lt. 0) THEN
+			!S(s_i,s_l) = -1*S(s_i,s_l)
+			!M = M + 2*S(s_i,s_l)
+		ELSE
+			!call random_number(p_aleatorio)
+			!p = exp(-dE/(T*k_B))
+			
+			!IF(p_aleatorio .lt. p) THEN
+			!	S(s_i,s_l) = -1*S(s_i,s_l)
+			!	M = M + 2*S(s_i,s_l)
+			!ELSE
+			!	S(s_i,s_l) = S(s_i,s_l)
+			!	E = E
+			!	M = M
+			!END IF
+		END IF
 	END DO
 	!Fim DO j = 1, N_passos
 END DO
@@ -162,5 +180,16 @@ end subroutine
 subroutine sum_potencias(placa_direita, placa_esquerda, placa_acima, placa_abaixo, potencia_total)
 	real, intent(in)::placa_direita, placa_esquerda, placa_acima, placa_abaixo
 	real, intent(out) :: potencia_total
+	
+	potencia_total = 0.0
+	
+	call get_potencia(placa_direita, p_potencia)
+	potencia_total = potencia_total + p_potencia
+	call get_potencia(placa_esquerda, p_potencia)
+	potencia_total = potencia_total + p_potencia
+	call get_potencia(placa_acima, p_potencia)
+	potencia_total = potencia_total + p_potencia
+	call get_potencia(placa_abaixo, p_potencia)
+	potencia_total = potencia_total + p_potencia
 	
 end subroutine sum_potencias
