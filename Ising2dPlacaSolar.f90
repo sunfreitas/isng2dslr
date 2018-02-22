@@ -28,16 +28,17 @@ end interface
 ! As placas estão organizadas em um vetor de duas dimensões.
 ! O valor corresponde ao ângulo que a respectiva placa apresenta num 
 ! certo momento.
-REAL, DIMENSION(5, 5) :: placas
+REAL, DIMENSION(103, 103) :: placas
 INTEGER k, l, N, N_passos, w
 REAL iplaca_aleatoria, lplaca_aleatoria, p_aleatorio
 INTEGER ip_a, lp_a
 REAL placa_direita, placa_esquerda, placa_acima, placa_abaixo
-REAL H, J, dE,T, To, k_Boltz, p, p_angulo, p_potencia, potencia_total
+REAL H, J, dE,T, To, k_Boltz, p, p_potencia, potencia_total, E, M, M_m
+INTEGER, PARAMETER :: u_EM = 7
 
 ! Inicializando N e N_passos
-N = 5 !limite das fronteiras da matriz. 
-N_passos = 300
+N = 20 !limite das fronteiras da matriz. 
+N_passos = 3000
 J = 1.0 ! J é a intensidade da interação de troca entre sítios vizinhos
 H = 0.0 ! H é inicializado com zero
 To = 0.1
@@ -48,12 +49,21 @@ k_Boltz = 1.0
 ! Todas as placas iniciam paralelas ao solo.
 ! O giro do motor varia de 0º a 180º, logo sua posição inicial deve ser 90º
 ! para permitir uma rotação para ambos os lados. 
-placas = 0.00
+placas = +1
+
+! Abrimos o arquivo de saida :
+OPEN( unit=u_EM, file="magnetizacao.dat", status="unknown",&
+                                                      action="write" )
+                                                      
+                                                      
+do w = 1, 50
+
+M_m = 0.0
 
 ! gerador de números aleatórios.
 CALL random_seed
-DO k = 1, 2
-	DO l = 1, 5
+DO k = 1, N_passos
+	DO l = 1, N**2
 		call random_number(iplaca_aleatoria)
 		
 		! transforma o numero extemamente pequeno em algo maior
@@ -98,37 +108,46 @@ DO k = 1, 2
 		
 		! Testante a func get_potencia
 		call get_potencia( placas(ip_a,lp_a), p_potencia )
-		print *, p_potencia
+		!print *, "Potencia (kW): ", p_potencia 
 		call sum_potencias(placa_direita, placa_esquerda, placa_acima, placa_abaixo, potencia_total)
-		print *, potencia_total
-		! Fim do teste get_potencia
+		!print *, "Potencia Total: ", potencia_total
 		
 		! Cálculo da variação infinitesimal da energia interna do sistema.
-		dE=-2.0*(-J*REAL(p_potencia)*REAL(potencia_total)-H*REAL(p_potencia))
-		
+		dE=-2.0*(-J*REAL(p_potencia)*REAL(potencia_total)-H*REAL(p_potencia)) !@todo Parte do problema está aqui (1)
+		!print *, "Variação da Energia Interna (P)", dE
 		! A transição é a mudança de ângulo na placa solar.
 		IF(dE .lt. 0) THEN
-			placas(ip_a,lp_a) = placas(ip_a,lp_a) + 5.0 !Gira a placa N graus -1*S(s_i,s_l)
+			placas(ip_a,lp_a) = (placas(ip_a,lp_a) + 5)
+			call get_potencia( placas(ip_a,lp_a), p_potencia )
+			M = M + 2*p_potencia
 			!M = M + 2*S(s_i,s_l) !Não temos uma magnetização aqui...
 		ELSE
 			call random_number(p_aleatorio)
-			p = exp(-dE/(T*k_Boltz))
-			
+			p = exp(-dE/(T*k_Boltz)) !@todo o problema em (1) se reflete aqui...
+			!print *, "p_aleatorio: ", p_aleatorio
+			print *, "p: ", p
 			IF(p_aleatorio .lt. p) THEN
-				placas(ip_a,lp_a) = placas(ip_a,lp_a) - 5.0 !Desvira a placa N graus -1*S(s_i,s_l)
-			!	M = M + 2*S(s_i,s_l) !não influencia no algoritimo
+				placas(ip_a,lp_a) = (placas(ip_a,lp_a) - 5)
+				!M = M + 2*placas(ip_a,lp_a) !não influencia no algoritimo
+				call get_potencia( placas(ip_a,lp_a), p_potencia )
+				M = M + 2*p_potencia
 			ELSE
 				placas(ip_a,lp_a) = placas(ip_a,lp_a)
 				!@todo Utilizar potência no lugar de Energia
-			!	E = E !não influenciar no algoritimo
-			!	M = M !não influenciar no algoritimo
+				E = E !não influenciar no algoritimo
+				M = M !não influenciar no algoritimo
 			END IF
 		END IF
 	END DO
 	!Fim DO j = 1, N_passos
+	
+	IF ( k .GT. 1000) THEN
+	   M_m = M_m + M
+	END IF
+	
 END DO
 !Fim DO i = 1, N
-
+end do
 !Imprime a nova matriz
 call write_matrix(placas)
 
@@ -167,13 +186,14 @@ subroutine get_potencia(p_angulo, p_potencia)
 	! Valores de potencial fictício produzidos por placa
 	! a cada 5º de inclinação com um mínimo de 0º e máximo de 30º
 	! para cada placa.
-	inclinacao_potencia(1) = 0.99
-	inclinacao_potencia(2) = 0.98
-	inclinacao_potencia(3) = 0.96
-	inclinacao_potencia(4) = 0.93
-	inclinacao_potencia(5) = 0.90
-	inclinacao_potencia(6) = 0.87
-	inclinacao_potencia(7) = 0.83
+	inclinacao_potencia = +1
+	!inclinacao_potencia(1) = 1.0
+	!inclinacao_potencia(2) = 1.0
+	!inclinacao_potencia(3) = 1.0
+	!inclinacao_potencia(4) = 1.0
+	!inclinacao_potencia(5) = 1.0
+	!inclinacao_potencia(6) = 1.0
+	!inclinacao_potencia(7) = 1.0
 	
 	p_potencia = inclinacao_potencia( floor((p_angulo/5))+1 )
 	
@@ -193,6 +213,6 @@ subroutine sum_potencias(placa_direita, placa_esquerda, placa_acima, placa_abaix
 	call get_potencia(placa_acima, p_potencia)
 	potencia_total = potencia_total + p_potencia
 	call get_potencia(placa_abaixo, p_potencia)
-	potencia_total = potencia_total + p_potencia
+    potencia_total = potencia_total + p_potencia
 	
 end subroutine sum_potencias
